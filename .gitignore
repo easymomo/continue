@@ -174,3 +174,5 @@ extensions/.continue-debug/
 
 .continuerules
 **/.continue/assistants/
+
+AIgents.code-workspace

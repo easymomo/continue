@@ -1,0 +1,37 @@
+{
+  "name": "ai-dev-agents",
+  "version": "0.1.0",
+  "description": "Multi-agent system for AI-assisted software development",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest run --coverage"
+  },
+  "dependencies": {
+    "@langchain/core": "^0.3.45",
+    "@langchain/community": "^0.3.41",
+    "langchain": "^0.3.23",
+    "uuid": "^11.1.0",
+    "redux": "^5.0.1",
+    "redis": "^4.7.0",
+    "events": "^3.3.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3",
+    "@types/node": "^20.11.25",
+    "@types/uuid": "^10.0.0",
+    "@types/redux": "^3.6.0",
+    "vitest": "^3.1.2",
+    "@vitest/coverage-v8": "^3.1.2",
+    "@vitest/ui": "^3.1.1",
+    "vite": "^6.0.0",
+    "vite-tsconfig-paths": "^5.1.4"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  }
+}
