@@ -1,10 +1,57 @@
-<h1 align="center">AI Dev Agents</h1>
+# AIgents Project
 
-<div align="center">
+## Overview
 
-**A multi-agent system for enhanced software development**
+AIgents is a fork of the VSCode extension Continue, enhanced with multi-agent capabilities. The project aims to address the primary limitation of AI IDEs like Cursor and Windsurf: the limited context window that causes LLMs to "forget" ongoing tasks after several interactions.
 
-</div>
+## Core Problem
+
+Current AI IDEs have limited memory and continuity when running tasks with LLMs. After a few messages, they often "forget" context, requiring users to re-explain their tasks and goals.
+
+## Key Features
+
+- Multi-agent architecture replacing the single agent setup
+- Persistent memory and context retention
+- Task-based workflow system
+- Dropdown selection for multi-agent mode
+
+## Development Philosophy
+
+- Plan-driven development (no work without a plan)
+- For new projects: architecture design followed by detailed planning
+- For existing projects: code analysis, architecture refinement, and detailed planning
+- Production-ready, secure, and testable code
+
+## Dependency Management
+
+- Documentation Agent tracks library versions and documentation
+- Vector DB storage for documentation with timestamps
+- Migration plans for outdated dependencies
+- Option to use current versions with appropriate documentation if updates aren't feasible
+
+## Memory Management
+
+- Persistent context awareness (codebase, plan, tasks, current state, desired state)
+- Task-based work organization (all work happens within tasks)
+- Task stack management (new tasks can be pushed onto the stack while preserving previous tasks)
+- Systematic context rebuilding when necessary
+- Text files for configuration and system memory
+- Vector DB for search results and documentation
+- Optional SQLite for additional data storage
+
+## Message Processing
+
+Messages are analyzed for:
+
+1. Simple actions that don't affect the plan - create task and execute
+2. Plan-affecting actions - analyze request, gather context, create/update tasks accordingly
+
+## Core Components
+
+- Agent Registry - manages agent registration and discovery
+- Task Manager - handles creation, assignment, and execution of tasks
+- Memory System - provides persistent storage and retrieval of agent state
+- Message Bus - facilitates communication between agents
 
 ## Project Overview
 
@@ -25,6 +72,7 @@ The project maintains the core capabilities of the original VS Code extension wh
 Instead of relying on a single agent to handle all aspects of software development, our approach introduces a hierarchical system of specialized agents:
 
 ### Master Agent
+
 - Central coordinator that maintains the overall project concept and vision
 - Orchestrates communication between specialized worker agents
 - Makes high-level decisions about task allocation and project direction
@@ -32,12 +80,14 @@ Instead of relying on a single agent to handle all aspects of software developme
 ### Specialized Worker Agents
 
 1. **Project Manager Agent**
+
    - Handles project breakdown and planning
    - Creates and maintains project and product files
    - Tracks project progress
    - Provides status updates on demand
 
 2. **Security Agent**
+
    - Performs live code audits
    - Reviews implementation plans for security considerations
    - Integrates production-ready security measures
@@ -45,11 +95,13 @@ Instead of relying on a single agent to handle all aspects of software developme
    - Handles security aspects: middleware, tokens, cookies, encryption
 
 3. **Search Agent**
+
    - Searches the web for solutions and references
    - Activates automatically when errors occur
    - Accesses and analyzes logs to diagnose issues
 
 4. **Documentation Agent**
+
    - Downloads up-to-date documentation from official sources
    - Maintains a knowledge base of technologies used in the project
    - Ensures code follows latest best practices and patterns
@@ -81,6 +133,7 @@ For each code generation task:
 The system supports two primary modes of interaction:
 
 1. **Project Development Mode**
+
    - Focused on adding planned features and functionality
    - Following the structured development workflow
 
@@ -92,12 +145,14 @@ The system supports two primary modes of interaction:
 ## Global Overview Plan
 
 1. **Phase 1: Agent Framework Development**
+
    - Design agent communication protocol
    - Build agent state management system
    - Create agent factory and lifecycle management
    - Implement prompt analysis and task breakdown system
 
 2. **Phase 2: Specialized Agent Implementation**
+
    - Build Master Agent coordinator logic
    - Implement Project Manager tracking system
    - Develop Security Agent with auditing capabilities
@@ -106,6 +161,7 @@ The system supports two primary modes of interaction:
    - Implement hierarchical Developer Agent system
 
 3. **Phase 3: Workflow Integration**
+
    - Design Test-Driven Development workflow
    - Create project tracking and reporting system
    - Implement security audit integration
@@ -113,6 +169,7 @@ The system supports two primary modes of interaction:
    - Develop instruction parsing and execution system
 
 4. **Phase 4: IDE Integration**
+
    - Connect agent system to VS Code extension
    - Implement UI for agent interactions and visualizations
    - Create progress and status visualization dashboard
@@ -136,22 +193,27 @@ The system supports two primary modes of interaction:
 ## Getting Started
 
 ### Prerequisites
+
 - Node.js and npm
 - VS Code
 
 ### Installation
+
 1. Clone the repository
+
 ```bash
 git clone https://github.com/username/ai-dev-agents.git
 cd ai-dev-agents
 ```
 
 2. Install dependencies
+
 ```bash
 npm install
 ```
 
 3. Build the extension
+
 ```bash
 npm run build
 ```
@@ -179,6 +241,7 @@ I would like to have an agent-based solution to replace the single agent of the 
 
 Here is the idea:
 There is a master agent, it holds the whole concept and idea of the project. It has some worker agents:
+
 - A Project Manager agent (Project Breakdown, create and maintain project and products files, project progress), we can ask the project manager any time about the progress of the project
 - A Security Agent to audit the code live but also review the plans and include production ready security measures in the plan taking into account the project overall (Security strategy, middlewares, tokens, cookies, encryption, Best practices, OWASP...)
 - A Search agent (Searches the web, activates when there is an error, can get access to logs)
@@ -198,10 +261,12 @@ Not all the communications in the chat will be about adding new features, we nee
 ## LLM Integration
 
 **Local-First Approach**: This project is designed to work primarily with local LLMs through existing integrations with:
+
 - **LM Studio**: For local model deployment and inference
 - **Ollama**: For easy local model management and API access
 
 This local-first approach provides several advantages:
+
 - **Privacy**: Your code and prompts remain on your machine
 - **Cost efficiency**: No per-token charges from cloud providers
 - **Offline usage**: Work without an internet connection

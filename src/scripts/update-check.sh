@@ -17,11 +17,11 @@ echo ""
 # Ensure the reports directory exists
 mkdir -p src/reports
 
-# Make the JS script executable if it isn't already
-chmod +x src/scripts/update-deps.js
+# Make the TypeScript script executable if it isn't already
+chmod +x src/scripts/update-deps.ts
 
-# Run the update check script
-node src/scripts/update-deps.js
+# Run the update check script using ts-node
+npx ts-node --project src/scripts/tsconfig.json src/scripts/update-deps.ts
 
 echo ""
 echo -e "${YELLOW}==============================================${NC}"

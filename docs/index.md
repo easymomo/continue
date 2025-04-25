@@ -1,6 +1,7 @@
 # AI Dev Agents Documentation
 
 **Navigation:**
+
 - **You are here:** Index
 - [Table of Contents](table-of-contents.md)
 - [Architecture Overview](architecture/overview.md)
@@ -9,6 +10,11 @@
 - [Agent System](architecture/agent-system.md)
 - [IDE Integration](architecture/ide-integration.md)
 - [MCP System](architecture/mcp-system.md)
+- **Technologies:**
+  - [Vector Databases](technologies/vector-databases.md)
+  - [Agent Frameworks](technologies/agent-frameworks.md)
+  - [Embedding Providers](technologies/embedding-providers.md)
+  - [LLM Providers](technologies/llm-providers.md)
 
 This documentation provides a comprehensive analysis of the Continue VSCode extension and outlines our plan to evolve it into an agent-based system.
 
@@ -34,6 +40,15 @@ The following documents provide detailed analysis of the Continue extension's ar
 - [Agent System](architecture/agent-system.md): Current agent implementation and evolution plan
 - [IDE Integration](architecture/ide-integration.md): How the extension integrates with VSCode
 - [MCP System](architecture/mcp-system.md): The Model Context Protocol system and its capabilities
+
+## Technologies Documentation
+
+The following documents provide detailed information about the technologies used in the AIgents project:
+
+- [Vector Databases](technologies/vector-databases.md): ChromaDB and vector storage systems
+- [Agent Frameworks](technologies/agent-frameworks.md): LangChain.js and agent orchestration tools
+- [Embedding Providers](technologies/embedding-providers.md): Ollama and other embedding generation options
+- [LLM Providers](technologies/llm-providers.md): LM Studio and other model providers
 
 ## Current Architecture Summary
 
@@ -83,6 +98,7 @@ Together, we aim to create a powerful new AI coding assistant that leverages the
 ---
 
 **Navigation:**
+
 - **You are here:** Index
 - [Table of Contents](table-of-contents.md)
 - [Architecture Overview](architecture/overview.md)
@@ -91,3 +107,8 @@ Together, we aim to create a powerful new AI coding assistant that leverages the
 - [Agent System](architecture/agent-system.md)
 - [IDE Integration](architecture/ide-integration.md)
 - [MCP System](architecture/mcp-system.md)
+- **Technologies:**
+  - [Vector Databases](technologies/vector-databases.md)
+  - [Agent Frameworks](technologies/agent-frameworks.md)
+  - [Embedding Providers](technologies/embedding-providers.md)
+  - [LLM Providers](technologies/llm-providers.md)

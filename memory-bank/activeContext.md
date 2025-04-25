@@ -1,6 +1,7 @@
 # Active Context
 
 ## Current Focus
+
 - Agent framework evaluation and selection completed
 - Architecture design for multi-agent system using LangChain.js/LangGraph
 - **Implementation planning based on VS Code extension code analysis**
@@ -9,6 +10,7 @@
 - Local LLM integration strategy with LM Studio and Ollama
 
 ## Focus Areas
+
 - [x] Agent framework evaluation and architecture
 - [x] Local LLM integration strategy via LM Studio and Ollama
 - [ ] Multi-agent system hierarchy and communication design
@@ -17,6 +19,7 @@
 - [ ] Custom "AIgents" mode UI implementation
 
 ## Project Overview
+
 This project aims to transform a single-agent VS Code extension into a comprehensive multi-agent system with specialized roles and capabilities. The system will utilize a hierarchical structure with a Master Agent coordinating specialized worker agents. Key components include:
 
 1. **Multi-Agent Architecture**: A hierarchical system with a Master Agent and specialized worker agents.
@@ -27,15 +30,17 @@ This project aims to transform a single-agent VS Code extension into a comprehen
 6. **Custom UI Mode**: Adding a new "AIgents" mode option to the existing UI dropdown, preserving all current functionality.
 
 ## Selected Technical Approach
+
 - **Agent Framework**: LangChain.js with LangGraph for orchestrating multi-agent workflows
 - **Agent Model**: CrewAI-inspired role-based model with hierarchical structure
 - **LLM Integration**: Adapter for both local (LM Studio, Ollama) and cloud LLMs
-- **Vector Database**: Chroma DB for development, with options for Pinecone or Qdrant in production
+- **Vector Database**: Local ChromaDB with project isolation and offline operation
 - **Instruction Management**: YAML/JSON configuration files with hot-reload capabilities
 - **MCP Implementation**: Using VS Code's MCP API to discover and utilize registered MCP servers
 - **UI Integration**: Adding "AIgents" as a new mode option alongside existing Agent, Chat, and Edit modes
 
 ## Custom AIgents Mode Implementation
+
 The extension will add a new "AIgents" mode to the mode selector dropdown, alongside the existing Agent, Chat, and Edit modes. This approach has several advantages:
 
 1. **Preserves Existing Functionality**: All current modes remain completely untouched
@@ -44,12 +49,14 @@ The extension will add a new "AIgents" mode to the mode selector dropdown, along
 4. **LLM Compatibility**: Works with the selected LLM from the existing model dropdown
 
 The implementation will include:
+
 - Adding the AIgents option to the mode selector dropdown
 - Creating custom UI indicators for the AIgents mode
 - Implementing specialized controls for interacting with multiple agents
 - Routing messages through our multi-agent system when in AIgents mode
 
 ## Code Analysis Findings
+
 - **Redux State Flow**:
   - `streamResponseThunk`: Entry point for user messages
   - `streamNormalInput`: Handles sending messages to LLM
@@ -65,19 +72,55 @@ The implementation will include:
   - Tool execution follows policy-based permission system
 
 ## Enhanced Agent Types
+
 - **Core Agents**:
   - Master Agent (Coordinator)
   - Developer Agent (Coding specialist)
   - Research Agent (Documentation and search specialist)
   - Testing Agent (Code testing and validation)
-  
 - **Additional Specialized Agents**:
   - Evaluation Agent (Assesses quality of solutions)
   - Learning Agent (Captures and applies learning from interactions)
   - Integration Agent (Manages external system integrations)
 
+## Context System Strategy
+
+The context system provides semantic search capabilities for our agent memory:
+
+1. **Offline-First Architecture**:
+
+   - All vector database and embedding operations run completely locally
+   - No external API dependencies for core functionality
+   - Compatible with airgapped environments
+
+2. **Project Isolation**:
+
+   - Per-project collections in vector database
+   - Workspace-aware storage paths
+   - Isolated memory manager instances by project
+   - Resource management to prevent conflicts
+
+3. **Local Vector Storage**:
+
+   - ChromaDB running locally (either as direct dependency or Docker container)
+   - Alternative options include SQLite-based solutions and file-based databases
+   - Clear separation between projects to prevent data leakage
+
+4. **Local Embedding Models**:
+
+   - Integration with Ollama for embedding generation
+   - Support for LM Studio's embedding capabilities
+   - Lightweight embedding options for resource-constrained environments
+
+5. **Deployment Options**:
+   - Direct npm dependency installation
+   - Docker-based setup for better isolation
+   - Portable configuration for multi-machine use
+
 ## MCP Integration Strategy
+
 The implementation will leverage VS Code's native MCP support to:
+
 - Discover MCP servers registered in VS Code
 - Access tools and resources provided by these servers
 - Implement proper security and permission controls
@@ -86,16 +129,25 @@ The implementation will leverage VS Code's native MCP support to:
 This approach eliminates the need to create separate connections or manage transport protocols manually, providing a more seamless experience for users who already have MCP servers configured in VS Code.
 
 ## Recent Activity
+
 - Completed research on agent frameworks and identified LangChain.js with LangGraph as the optimal choice
 - Analyzed existing VS Code extension to identify integration points
 - Identified existing LLM integrations with LM Studio and Ollama in the forked extension
 - Designed initial agent hierarchy and communication patterns
 - Updated implementation plan to leverage VS Code's native MCP support
-- **Completed code analysis of VS Code extension**
-- **Mapped integration points for agent system**
-- **Designed custom "AIgents" mode approach for UI integration**
+- Completed code analysis of VS Code extension
+- Mapped integration points for agent system
+- Designed custom "AIgents" mode approach for UI integration
+- **Developed offline-first context system architecture**
+- **Created project isolation strategy for multi-project support**
+- **Refined vector database approach to prioritize local operation**
+- **Designed Ollama integration for local embedding generation**
+- **Updated Memory and Context System implementation plan**
+- **Verified proper separation between AIgents and Continue in memory system design**
+- **Documented adapter pattern for Continue context system integration**
 
 ## Next Steps
+
 1. Set up development environment with LangChain.js and necessary dependencies
 2. Create the UI components for the new "AIgents" mode
 3. Implement the mode registration and selection handling
@@ -103,3 +155,7 @@ This approach eliminates the need to create separate connections or manage trans
 5. Design the agent-MCP bridge for seamless tool access
 6. Create proof of concept for basic agent communication
 7. Implement Master Agent prototype
+8. **Implement Continue context system adapter for embedding generation**
+9. **Complete memory manager implementation with vector search capabilities**
+10. **Develop agent memory contexts for specialized agents**
+11. **Create memory persistence layer for cross-session memory**

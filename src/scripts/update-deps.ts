@@ -3,7 +3,7 @@
 /**
  * This script checks for outdated dependencies and generates a report.
  * It scans multiple package.json files across the project.
- * Run with: node src/scripts/update-deps.js
+ * Run with: npx ts-node src/scripts/update-deps.ts
  */
 
 import { exec } from "child_process";
@@ -16,8 +16,40 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const rootDir = path.resolve(__dirname, "../..");
 
+// Custom types for our script
+interface OutdatedDependency {
+  current: string;
+  wanted: string;
+  latest: string;
+  dependent: string;
+  type: string;
+}
+
+interface OutdatedResult {
+  dirName: string;
+  directory?: string;
+  outdatedDeps: Record<string, OutdatedDependency>;
+  error?: string;
+}
+
+interface SecurityCount {
+  critical: number;
+  high: number;
+  moderate: number;
+  low: number;
+  info: number;
+}
+
+interface SecurityResult {
+  dirName: string;
+  directory?: string;
+  counts: Partial<SecurityCount>;
+  vulnerabilities: Record<string, any>;
+  error?: string;
+}
+
 // Function to execute shell commands and return output
-const execPromise = (command, cwd = process.cwd()) => {
+const execPromise = (command: string, cwd = process.cwd()): Promise<string> => {
   return new Promise((resolve, reject) => {
     exec(command, { cwd }, (error, stdout, stderr) => {
       if (error) {
@@ -31,12 +63,12 @@ const execPromise = (command, cwd = process.cwd()) => {
 
 // Function to find all package.json files in the project
 async function findPackageJsonFiles(
-  dir,
-  excludeDirs = ["node_modules", ".git"],
-) {
-  const results = [];
+  dir: string,
+  excludeDirs: string[] = ["node_modules", ".git"],
+): Promise<string[]> {
+  const results: string[] = [];
 
-  async function scan(directory) {
+  async function scan(directory: string): Promise<void> {
     const entries = await fs.readdir(directory, { withFileTypes: true });
 
     for (const entry of entries) {
@@ -55,7 +87,9 @@ async function findPackageJsonFiles(
 }
 
 // Check for outdated dependencies in a specific directory
-async function checkOutdatedDepsInDir(directory) {
+async function checkOutdatedDepsInDir(
+  directory: string,
+): Promise<OutdatedResult> {
   console.log(`\nChecking for outdated dependencies in ${directory}...`);
 
   const dirName = path.basename(directory);
@@ -78,12 +112,17 @@ async function checkOutdatedDepsInDir(directory) {
     return { dirName, directory, outdatedDeps };
   } catch (error) {
     console.error(`Error checking dependencies in ${dirName}:`, error);
-    return { dirName, directory, outdatedDeps: {}, error: error.message };
+    return {
+      dirName,
+      directory,
+      outdatedDeps: {},
+      error: (error as Error).message,
+    };
   }
 }
 
 // Check for security vulnerabilities in a specific directory
-async function checkSecurityInDir(directory) {
+async function checkSecurityInDir(directory: string): Promise<SecurityResult> {
   const dirName = path.basename(directory);
   console.log(`\nChecking for security vulnerabilities in ${dirName}...`);
 
@@ -96,7 +135,7 @@ async function checkSecurityInDir(directory) {
       Object.keys(auditData.vulnerabilities).length > 0
     ) {
       // Count vulnerabilities by severity
-      const counts = {
+      const counts: Partial<SecurityCount> = {
         critical: 0,
         high: 0,
         moderate: 0,
@@ -105,7 +144,9 @@ async function checkSecurityInDir(directory) {
       };
 
       for (const [name, info] of Object.entries(auditData.vulnerabilities)) {
-        counts[info.severity] = (counts[info.severity] || 0) + 1;
+        const severity = (info as any).severity;
+        counts[severity as keyof SecurityCount] =
+          (counts[severity as keyof SecurityCount] || 0) + 1;
       }
 
       return {
@@ -125,13 +166,16 @@ async function checkSecurityInDir(directory) {
       directory,
       counts: {},
       vulnerabilities: {},
-      error: error.message,
+      error: (error as Error).message,
     };
   }
 }
 
 // Generate a comprehensive report
-async function generateReport(outdatedResults, securityResults) {
+async function generateReport(
+  outdatedResults: OutdatedResult[],
+  securityResults: SecurityResult[],
+): Promise<string> {
   const reportDate = new Date().toISOString().split("T")[0];
 
   // Generate a report
@@ -193,12 +237,12 @@ async function generateReport(outdatedResults, securityResults) {
       continue;
     }
 
-    if (Object.keys(counts).some((severity) => counts[severity] > 0)) {
+    if (Object.values(counts).some((count) => (count as number) > 0)) {
       hasVulnerabilities = true;
       report += `### ${dirName}\n\n`;
 
       for (const [severity, count] of Object.entries(counts)) {
-        if (count > 0) {
+        if ((count as number) > 0) {
           report += `- **${severity}**: ${count}\n`;
         }
       }
@@ -236,7 +280,7 @@ async function generateReport(outdatedResults, securityResults) {
 }
 
 // Main function
-async function main() {
+async function main(): Promise<void> {
   console.log("📦 Multi-Package Dependency Update Checker");
   console.log("========================================\n");
 
@@ -247,14 +291,14 @@ async function main() {
   const packageDirs = packageJsonFiles.map((file) => path.dirname(file));
 
   // Check outdated dependencies in all directories
-  const outdatedResults = [];
+  const outdatedResults: OutdatedResult[] = [];
   for (const dir of packageDirs) {
     const result = await checkOutdatedDepsInDir(dir);
     outdatedResults.push(result);
   }
 
-  // Check security in all directories
-  const securityResults = [];
+  // Check security vulnerabilities in all directories
+  const securityResults: SecurityResult[] = [];
   for (const dir of packageDirs) {
     const result = await checkSecurityInDir(dir);
     securityResults.push(result);
@@ -263,15 +307,15 @@ async function main() {
   // Generate report
   await generateReport(outdatedResults, securityResults);
 
-  console.log("\n✨ Done!");
+  console.log("\n✨ Dependency check completed!");
 }
 
-// Run main function when script is executed directly
+// When run directly
 if (import.meta.url === `file://${process.argv[1]}`) {
   main().catch(console.error);
 }
 
-// Export functions for use in other modules
+// Export functions for use in other scripts
 export {
   checkOutdatedDepsInDir,
   checkSecurityInDir,

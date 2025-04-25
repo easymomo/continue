@@ -8,16 +8,30 @@
     "test": "cd src && npm test",
     "test:watch": "cd src && npm run test:watch",
     "test:coverage": "cd src && npm run test:coverage",
-    "update:deps": "node src/scripts/update-deps.js"
+    "update:deps": "npx ts-node --project src/scripts/tsconfig.json src/scripts/update-deps.ts",
+    "update:deps:agent": "npx ts-node --project src/scripts/tsconfig.json src/scripts/dependency-agent.ts",
+    "build:agents": "tsc --project src/agents/tsconfig.json",
+    "build:agents:watch": "tsc --project src/agents/tsconfig.json --watch",
+    "clean:agents": "rimraf dist/agents",
+    "clean:build:agents": "npm run clean:agents && npm run build:agents",
+    "agents:example:dependency": "node --experimental-specifier-resolution=node dist/agents/examples/dependency-example.js",
+    "build:scripts": "tsc --project src/scripts/tsconfig.json",
+    "clean:scripts": "rimraf dist/scripts",
+    "clean:build:scripts": "npm run clean:scripts && npm run build:scripts"
   },
   "devDependencies": {
+    "@types/node": "^20.11.25",
+    "@types/uuid": "^9.0.8",
     "@types/vscode": "^1.99.1",
     "@typescript-eslint/parser": "^7.8.0",
     "concurrently": "^9.1.2",
     "eslint-plugin-import": "^2.31.0",
     "prettier": "^3.3.3",
     "prettier-plugin-tailwindcss": "^0.6.11",
-    "typescript": "^5.8.3"
+    "rimraf": "^6.0.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3",
+    "uuid": "^9.0.1"
   },
   "engines": {
     "node": ">=18"

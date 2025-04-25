@@ -6,15 +6,83 @@
  */
 
 import { v4 as uuidv4 } from "uuid";
-import { AgentTool, AgentToolkit } from "../../mcp/bridge";
-import {
-  AgentMessage,
-  AgentType,
-  ContextItem,
-  Message,
-  Tool,
-  ToolCall,
-} from "../../types";
+
+// Inline interface definitions to avoid rootDir issues
+// These should match the definitions from ../../types/index.js
+interface Message {
+  role: "user" | "assistant" | "system" | "tool";
+  content: string;
+  name?: string;
+  toolCallId?: string;
+  toolCalls?: ToolCall[];
+}
+
+interface ToolCall {
+  id: string;
+  type: "function";
+  function: {
+    name: string;
+    arguments: string;
+  };
+}
+
+interface ContextItem {
+  id: string;
+  type: string;
+  content: string;
+  title?: string;
+  metadata?: Record<string, any>;
+}
+
+enum AgentType {
+  COORDINATOR = "coordinator",
+  PROJECT_MANAGER = "project_manager",
+  SECURITY = "security",
+  SEARCH = "search",
+  DOCUMENTATION = "documentation",
+  DEVELOPER = "developer",
+}
+
+interface AgentMessage {
+  from: AgentType;
+  to: AgentType | "all";
+  type: "request" | "response" | "notification";
+  content: string | Record<string, any>;
+  id: string;
+  replyTo?: string;
+  timestamp: number;
+}
+
+interface Tool {
+  function: {
+    name: string;
+    description: string;
+    parameters: {
+      type: string;
+      properties: Record<string, any>;
+      required?: string[];
+    };
+  };
+  display?: {
+    icon?: string;
+    group?: string;
+  };
+}
+
+// Inline AgentTool and AgentToolkit interfaces
+interface AgentTool {
+  name: string;
+  description: string;
+  parameters: any;
+  execute: (args: any) => Promise<any>;
+}
+
+interface AgentToolkit {
+  tools: Map<string, AgentTool>;
+  registerTool: (tool: AgentTool) => void;
+  getTool: (name: string) => AgentTool | undefined;
+  getAllTools: () => AgentTool[];
+}
 
 export abstract class BaseAgent {
   protected id: string;
