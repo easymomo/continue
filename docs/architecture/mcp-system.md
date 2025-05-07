@@ -1,3 +1,5 @@
+_[← Back to Documentation Navigation](../navigation.md)_
+
 # Model Context Protocol (MCP) System
 
 **Navigation:**

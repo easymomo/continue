@@ -1,146 +1,117 @@
-# AIgents Framework - Agent System
+# AIgents Specialized Agents
 
-This directory contains the implementation of the AIgents multi-agent framework, designed to address the context limitations in AI IDEs by providing persistent memory and task management.
+This directory contains the implementation of all specialized agents used in the AIgents system.
 
-## Directory Structure
+## Agent Architecture
+
+The agent system follows a coordinator-worker architecture:
 
 ```
-/agents
-│
-├── framework/               # Core framework components
-│   ├── agent-registry.ts    # Agent registration and discovery system
-│   ├── base-agent.ts        # Base agent class for extension
-│   ├── message-bus.ts       # Inter-agent communication system
-│   ├── memory-system.ts     # Persistent memory system
-│   ├── task-manager.ts      # Task creation, assignment, and tracking
-│   └── types.ts             # Type definitions for the framework
-│
-├── dependency-agent.ts      # Specialized agent for dependency management
-│
-└── examples/                # Example implementations using the framework
-    └── dependency-example.ts  # Example using the dependency agent
+                  ┌───────────────┐
+                  │   Coordinator │
+                  │     Agent     │
+                  └───────┬───────┘
+                          │
+          ┌───────────────┼───────────────┐
+          │               │               │
+┌─────────▼──────┐ ┌──────▼───────┐ ┌─────▼───────────┐
+│  Developer     │ │  Security    │ │  Research       │
+│    Agent       │ │    Agent     │ │    Agent        │
+└────────────────┘ └──────────────┘ └─────────────────┘
 ```
 
-## Framework Components
+- **Coordinator Agent**: Acts as the central manager for the multi-agent system
+- **Worker Agents**: Specialized agents that handle specific types of tasks
 
-### Agent Registry
+## Specialized Agents
 
-The Agent Registry serves as a central registration system for all agents in the framework. It maintains information about each agent's capabilities and the task types they can handle.
+### Coordinator Agent
+
+The Coordinator Agent is the central node in the agent system. It analyzes user requests and determines which specialized agent should handle them.
+
+**Key Responsibilities:**
+
+- Analyze user requests
+- Route tasks to appropriate specialized agents
+- Coordinate between agents for complex tasks
+- Provide final responses to users
+
+### Developer Agent
+
+The Developer Agent specializes in coding tasks and technical implementation.
+
+**Key Responsibilities:**
+
+- Write high-quality, maintainable code
+- Implement features and functionality
+- Debug and troubleshoot technical issues
+- Refactor and optimize code
+- Follow best practices and coding standards
+
+### Security Agent
+
+The Security Agent specializes in security reviews, vulnerability assessment, and secure coding practices.
+
+**Key Responsibilities:**
+
+- Identify security vulnerabilities in code
+- Recommend secure coding patterns
+- Assess code for common security issues (injection, XSS, CSRF, etc.)
+- Suggest security testing approaches
+- Provide explanations of security best practices
+
+### Research Agent
+
+The Research Agent specializes in information gathering, analysis, and synthesis.
+
+**Key Responsibilities:**
+
+- Search for technical information
+- Analyze documentation, APIs, and libraries
+- Evaluate technology options
+- Summarize complex technical information
+- Track information sources and provide references
+
+## How Agents Work Together
+
+1. **Request Intake**: User requests are processed by the Coordinator Agent
+2. **Task Routing**: The Coordinator determines which specialized agent is best suited for the task
+3. **Task Execution**: The specialized agent processes the task using its domain knowledge
+4. **Collaboration**: For complex tasks, agents may request assistance from other agents
+5. **Response Delivery**: The final response is delivered back to the user
+
+## Usage Example
+
+Here's how to use the agent system:
 
 ```typescript
-// Example: Registering an agent
-const myAgent = new MyCustomAgent();
-await framework.registerAgent(myAgent);
+import { AgentFactory } from "../core/agentFactory.js";
 
-// Example: Finding agents by capability
-const securityAgents = framework.findAgentsByCapability("securityAudit");
-```
+// Initialize the agent system
+const agentSystem = await AgentFactory.initializeAgentSystem();
 
-### Task Manager
-
-The Task Manager handles the creation, assignment, and execution of tasks within the framework. It ensures that tasks are properly tracked and that their state is persisted.
-
-```typescript
-// Example: Creating a task
-const task = await framework.createTask({
-  type: "code-analysis",
-  priority: TaskPriority.HIGH,
-  description: "Analyze the codebase for security vulnerabilities",
-  data: { paths: ["src/"] },
-  context: {},
-});
-
-// Example: Assigning a task to an agent
-await framework.assignTask(task.id, securityAgent.id);
-```
-
-### Memory System
-
-The Memory System provides persistent storage and retrieval of agent state and knowledge. It allows agents to store and retrieve information across sessions.
-
-```typescript
-// Example: Storing a memory item
-const memoryItem = await memorySystem.storeMemory(
-  "codebase-analysis",
-  { vulnerabilities: [], fileCount: 120 },
-  { projectId: "my-project", timestamp: Date.now() },
+// Process a message
+const result = await agentSystem.processMessage(
+  "Implement a secure password validation function in TypeScript",
 );
 
-// Example: Querying memories
-const analysisResults = memorySystem.getMemoriesByType("codebase-analysis");
+console.log(result);
 ```
 
-### Message Bus
+## Future Enhancements
 
-The Message Bus facilitates communication between agents in the framework. It supports both direct messages and broadcast messages.
+Planned specialized agents for future implementation:
 
-```typescript
-// Example: Sending a message to a specific agent
-await messageBus.sendMessage(
-  "security-agent",
-  "project-manager",
-  "vulnerability-found",
-  { file: "src/app.js", severity: "high" },
-);
+1. **Documentation Agent**: Creating technical documentation, guides, and reference materials
+2. **Testing Agent**: Creating test plans and writing unit/integration tests
+3. **Evaluation Agent**: Evaluating code quality, performance, and adherence to standards
 
-// Example: Broadcasting a message to all agents
-await messageBus.broadcastMessage("project-manager", "project-updated", {
-  newFiles: ["src/components/new-feature.js"],
-});
-```
+## Adding New Specialized Agents
 
-## Creating Custom Agents
+To add a new specialized agent:
 
-Custom agents can be created by extending the BaseAgent class:
-
-```typescript
-import { BaseAgent } from "./framework/base-agent";
-import { Task, TaskStatus } from "./framework/types";
-
-export class MyCustomAgent extends BaseAgent {
-  constructor() {
-    super({
-      name: "My Custom Agent",
-      description: "Performs custom operations",
-      version: "1.0.0",
-      capabilities: {
-        customOperation: true,
-      },
-      supportedTaskTypes: ["custom-task"],
-    });
-  }
-
-  protected async onInitialize(): Promise<void> {
-    // Initialization logic
-  }
-
-  protected async onHandleTask(task: Task): Promise<Task> {
-    if (task.type === "custom-task") {
-      // Handle the task
-      task.status = TaskStatus.COMPLETED;
-      task.result = { message: "Task completed successfully" };
-    } else {
-      task.status = TaskStatus.FAILED;
-      task.error = "Unsupported task type";
-    }
-
-    return task;
-  }
-
-  protected async onHandleMessage(message: Message): Promise<void> {
-    // Handle incoming messages
-  }
-}
-```
-
-## Current Status
-
-For the current implementation status and upcoming work, please refer to the [Project Plan](../core/project-plan.md).
-
-## Next Steps
-
-1. Complete Base Agent testing with multiple specialized agents
-2. Implement task stack management
-3. Enhance memory system with vector storage
-4. Begin Master Agent implementation
-5. Start integration with VSCode extension API
+1. Create a new agent class that extends BaseAgent
+2. Define its system prompt and specialized behaviors
+3. Implement the process() method to handle messages
+4. Register the agent in the AgentFactory
+5. Update the Coordinator Agent to recognize and route to the new agent

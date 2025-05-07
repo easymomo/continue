@@ -422,7 +422,7 @@ export interface PromptLog {
   completion: string;
 }
 
-export type MessageModes = "chat" | "edit" | "agent";
+export type MessageModes = "chat" | "edit" | "agent" | "aigents";
 
 export type ToolStatus =
   | "generating"
@@ -966,7 +966,10 @@ export interface ToolExtras {
   fetch: FetchFunction;
   tool: Tool;
   toolCallId?: string;
-  onPartialOutput?: (params: { toolCallId: string, contextItems: ContextItem[] }) => void;
+  onPartialOutput?: (params: {
+    toolCallId: string;
+    contextItems: ContextItem[];
+  }) => void;
 }
 
 export interface Tool {

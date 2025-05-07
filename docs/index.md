@@ -1,3 +1,5 @@
+_[← Back to Documentation Navigation](navigation.md)_
+
 # AI Dev Agents Documentation
 
 **Navigation:**
@@ -10,6 +12,11 @@
 - [Agent System](architecture/agent-system.md)
 - [IDE Integration](architecture/ide-integration.md)
 - [MCP System](architecture/mcp-system.md)
+- **Task Management System:**
+  - [System Overview](task-management-system.md)
+  - [API Reference](task-management-api.md)
+  - [Examples & Usage](task-management-examples.md)
+  - [AIgents Task Management](aigents-task-management.md)
 - **Technologies:**
   - [Vector Databases](technologies/vector-databases.md)
   - [Agent Frameworks](technologies/agent-frameworks.md)
@@ -107,6 +114,11 @@ Together, we aim to create a powerful new AI coding assistant that leverages the
 - [Agent System](architecture/agent-system.md)
 - [IDE Integration](architecture/ide-integration.md)
 - [MCP System](architecture/mcp-system.md)
+- **Task Management System:**
+  - [System Overview](task-management-system.md)
+  - [API Reference](task-management-api.md)
+  - [Examples & Usage](task-management-examples.md)
+  - [AIgents Task Management](aigents-task-management.md)
 - **Technologies:**
   - [Vector Databases](technologies/vector-databases.md)
   - [Agent Frameworks](technologies/agent-frameworks.md)

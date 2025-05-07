@@ -7,9 +7,11 @@
 
 import { EventEmitter } from "events";
 import { v4 as uuidv4 } from "uuid";
-import { Memory, memorySystem } from "./memory-system.js";
+import { AgentMemory } from "./memory-integration.js";
 import { messageBus } from "./message-bus.js";
 import { taskManager } from "./task-manager.js";
+import { TaskMemory } from "./task-memory.js";
+import { createTaskMemory } from "./task-system-init.js";
 import {
   Agent,
   AgentCapabilities,
@@ -17,7 +19,6 @@ import {
   Message,
   MessageType,
   Task,
-  TaskPriority,
   TaskStatus,
 } from "./types.js";
 
@@ -31,6 +32,8 @@ export interface BaseAgentConfig {
   version: string;
   capabilities: AgentCapabilities;
   supportedTaskTypes: string[];
+  type: string; // Added type field for agent type identification
+  useTaskMemory?: boolean; // Whether to use the task memory system
 }
 
 /**
@@ -43,9 +46,12 @@ export abstract class BaseAgent extends EventEmitter implements Agent {
   public readonly version: string;
   public readonly capabilities: AgentCapabilities;
   public readonly supportedTaskTypes: string[];
+  public readonly type: string; // Added type field for agent type
 
   private initialized: boolean = false;
   private active: boolean = false;
+  private memory: AgentMemory | TaskMemory;
+  private useTaskMemory: boolean;
 
   constructor(config: BaseAgentConfig) {
     super();
@@ -56,6 +62,11 @@ export abstract class BaseAgent extends EventEmitter implements Agent {
     this.version = config.version;
     this.capabilities = config.capabilities;
     this.supportedTaskTypes = config.supportedTaskTypes;
+    this.type = config.type;
+    this.useTaskMemory = config.useTaskMemory || false;
+
+    // Initialize with standard memory (will be updated in initialize() if useTaskMemory is true)
+    this.memory = new AgentMemory(this.id);
 
     // Set maximum number of listeners to avoid memory leak warnings
     this.setMaxListeners(50);
@@ -70,6 +81,24 @@ export abstract class BaseAgent extends EventEmitter implements Agent {
     }
 
     console.log(`Initializing agent: ${this.name} (${this.id})`);
+
+    // Initialize memory system
+    if (this.useTaskMemory) {
+      try {
+        // Use task-based memory system
+        this.memory = await createTaskMemory(this);
+        console.log(`Initialized task-based memory for agent: ${this.name}`);
+      } catch (error: any) {
+        console.warn(
+          `Failed to initialize task memory, falling back to standard memory: ${error.message}`,
+        );
+        this.memory = new AgentMemory(this.id);
+        await this.memory.initialize();
+      }
+    } else {
+      // Use standard memory system
+      await this.memory.initialize();
+    }
 
     // Initialize agent-specific resources
     await this.onInitialize();
@@ -316,79 +345,166 @@ export abstract class BaseAgent extends EventEmitter implements Agent {
   }
 
   /**
-   * Store a memory item
+   * Get the agent's memory system
+   * Returns either standard AgentMemory or TaskMemory based on configuration
+   */
+  protected getMemory(): AgentMemory | TaskMemory {
+    return this.memory;
+  }
+
+  /**
+   * Check if the agent is using task-based memory
+   */
+  protected isUsingTaskMemory(): boolean {
+    return this.useTaskMemory && this.memory instanceof TaskMemory;
+  }
+
+  /**
+   * Get the agent's task-based memory system if available
+   * @throws Error if task-based memory is not enabled
+   */
+  protected getTaskMemory(): TaskMemory {
+    if (!this.isUsingTaskMemory()) {
+      throw new Error("Task-based memory is not enabled for this agent");
+    }
+    return this.memory as TaskMemory;
+  }
+
+  /**
+   * Store a message in memory
    *
-   * @param type Type of memory
-   * @param content Content to store
+   * @param role The role (sender) of the message
+   * @param content The message content
    * @param metadata Additional metadata
-   * @returns ID of the memory item
+   * @returns ID of the stored memory
+   */
+  protected async storeMessage(
+    role: string,
+    content: string,
+    metadata: Record<string, any> = {},
+  ): Promise<string> {
+    if (this.isUsingTaskMemory()) {
+      return (this.memory as TaskMemory).storeMessage(role, content, metadata);
+    } else {
+      // Standard memory storage fallback
+      return this.memory.storeMemory(
+        "message",
+        { role, content },
+        { ...metadata, timestamp: Date.now() },
+      );
+    }
+  }
+
+  /**
+   * Store document content in memory
+   */
+  protected async storeDocument(
+    title: string,
+    content: string,
+    source: string,
+    metadata: Record<string, any> = {},
+  ): Promise<string> {
+    if (this.isUsingTaskMemory()) {
+      return (this.memory as TaskMemory).storeDocument(
+        title,
+        content,
+        source,
+        metadata,
+      );
+    } else {
+      // Standard memory storage fallback
+      return this.memory.storeMemory(
+        "document",
+        { title, content },
+        { ...metadata, source, timestamp: Date.now() },
+      );
+    }
+  }
+
+  /**
+   * Store code in memory
+   */
+  protected async storeCode(
+    filename: string,
+    code: string,
+    language: string,
+    metadata: Record<string, any> = {},
+  ): Promise<string> {
+    if (this.isUsingTaskMemory()) {
+      return (this.memory as TaskMemory).storeCode(
+        filename,
+        code,
+        language,
+        metadata,
+      );
+    } else {
+      // Standard memory storage fallback
+      return this.memory.storeMemory(
+        "code",
+        { filename, code, language },
+        { ...metadata, timestamp: Date.now() },
+      );
+    }
+  }
+
+  /**
+   * Store a decision in memory
+   */
+  protected async storeDecision(
+    decision: string,
+    reasoning: string,
+    metadata: Record<string, any> = {},
+  ): Promise<string> {
+    if (this.isUsingTaskMemory()) {
+      return (this.memory as TaskMemory).storeDecision(
+        decision,
+        reasoning,
+        metadata,
+      );
+    } else {
+      // Standard memory storage fallback
+      return this.memory.storeMemory(
+        "decision",
+        { decision, reasoning },
+        { ...metadata, timestamp: Date.now() },
+      );
+    }
+  }
+
+  /**
+   * Create a relationship with another agent
+   */
+  protected async createAgentRelationship(
+    otherAgentId: string,
+    relationship: string,
+  ): Promise<boolean> {
+    if (this.isUsingTaskMemory()) {
+      return (this.memory as TaskMemory).createAgentRelationship(
+        otherAgentId,
+        relationship,
+      );
+    } else {
+      // Standard memory doesn't support relationships directly
+      await this.memory.storeMemory(
+        "relationship",
+        { otherAgentId, relationship },
+        { timestamp: Date.now() },
+      );
+      return true;
+    }
+  }
+
+  /**
+   * Store memory using the standard memory system (for backward compatibility)
+   * Consider using the specialized storeMessage, storeDocument, etc. methods instead
    */
   protected async storeMemory(
     type: string,
     content: any,
     metadata: Record<string, any> = {},
   ): Promise<string> {
-    return memorySystem.storeMemory({
-      id: uuidv4(),
-      agentId: this.id,
-      type,
-      content,
-      metadata,
-      timestamp: new Date().toISOString(),
-    });
-  }
-
-  /**
-   * Get a memory item by ID
-   *
-   * @param memoryId ID of memory to retrieve
-   * @returns Memory item or undefined if not found
-   */
-  protected async getMemoryItem(memoryId: string): Promise<any> {
-    const memory = await memorySystem.getMemory(memoryId);
-    return memory?.content;
-  }
-
-  /**
-   * Query memory items based on criteria
-   *
-   * @param criteria Search criteria
-   * @returns Array of matching memory items
-   */
-  protected async queryMemories(criteria: {
-    type?: string;
-    metadata?: Record<string, any>;
-  }): Promise<Memory[]> {
-    return memorySystem.queryMemories({
-      agentId: this.id,
-      ...criteria,
-    });
-  }
-
-  /**
-   * Create a new task
-   *
-   * @param taskType Type of task to create
-   * @param description Description of the task
-   * @param data Task data
-   * @param priority Task priority
-   * @returns Created task
-   */
-  protected async createTask(
-    taskType: string,
-    description: string,
-    data: any,
-    priority: TaskPriority = TaskPriority.MEDIUM,
-  ): Promise<Task> {
-    const task = await taskManager.createTask({
-      type: taskType,
-      description,
-      data,
-      priority,
-      status: TaskStatus.PENDING,
-    });
-
-    return task;
+    // Simply delegate to the memory system
+    return this.memory.storeMemory(type, content, metadata);
   }
 
   /**

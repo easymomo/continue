@@ -639,15 +639,17 @@ export const sessionSlice = createSlice({
     },
     updateToolCallOutput: (
       state,
-      action: PayloadAction<{ toolCallId: string; contextItems: ContextItem[] }>,
+      action: PayloadAction<{
+        toolCallId: string;
+        contextItems: ContextItem[];
+      }>,
     ) => {
       // Find the tool call with the given ID and update its output
       const { toolCallId, contextItems } = action.payload;
 
       // Find the history item containing the tool call
       const historyItem = state.history.find(
-        (item) =>
-          item.toolCallState?.toolCallId === toolCallId
+        (item) => item.toolCallState?.toolCallId === toolCallId,
       );
 
       if (historyItem && historyItem.toolCallState) {
@@ -678,8 +680,8 @@ export const sessionSlice = createSlice({
     },
     cycleMode: (state, action: PayloadAction<{ isJetBrains: boolean }>) => {
       const modes = action.payload.isJetBrains
-        ? ["chat", "agent"]
-        : ["chat", "edit", "agent"];
+        ? ["chat", "agent", "aigents"]
+        : ["chat", "edit", "agent", "aigents"];
       const currentIndex = modes.indexOf(state.mode);
       const nextIndex = (currentIndex + 1) % modes.length;
       state.mode = modes[nextIndex] as MessageModes;

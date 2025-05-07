@@ -5,39 +5,87 @@
  * in the VS Code extension with a team of specialized agents.
  */
 
-import { AgentAdapter } from "./agents/adapter";
-import { AgentCommunicationBus } from "./communication/protocol";
-import { SharedMemory } from "./memory/shared";
+import { AgentSystem } from "./core/agentSystem";
+import { SystemFactory } from "./core/systemFactory";
+import { MessageType } from "./messaging/messageRouter";
 
 /**
- * Initialize the agent system
+ * AIgents - Multi-agent system for AI-assisted software development
  */
-export function initializeAgentSystem() {
-  console.log("Initializing AI Dev Agents system...");
+class AIgents {
+  private system: AgentSystem | null = null;
 
-  // Initialize the agent adapter
-  const agentAdapter = new AgentAdapter();
+  /**
+   * Initialize the AIgents system
+   */
+  public async initialize(apiKey?: string): Promise<void> {
+    console.log("Initializing AIgents system...");
+    try {
+      this.system = await SystemFactory.createDefaultSystem(apiKey);
+      console.log("AIgents system initialized successfully");
+    } catch (error) {
+      console.error("Failed to initialize AIgents system:", error);
+      throw error;
+    }
+  }
 
-  // Initialize shared systems
-  const communicationBus = AgentCommunicationBus.getInstance();
-  const sharedMemory = SharedMemory.getInstance();
+  /**
+   * Process a user message through the agent system
+   */
+  public async processMessage(message: string): Promise<any> {
+    if (!this.system) {
+      throw new Error("AIgents system not initialized");
+    }
 
-  console.log("Agent system initialized successfully");
+    try {
+      // Create a message for the coordinator agent
+      const router = this.system.getMessageRouter();
+      const agentMessage = router.createMessage(
+        MessageType.QUERY,
+        "user", // The message is from the user
+        message,
+      );
 
-  return {
-    adapter: agentAdapter,
-    communicationBus,
-    sharedMemory,
-  };
+      // Process the message through the agent system
+      const response = await this.system.processMessage(agentMessage);
+      return response;
+    } catch (error) {
+      console.error("Error processing message:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get the agent system instance
+   */
+  public getSystem(): AgentSystem | null {
+    return this.system;
+  }
 }
 
-/**
- * Export all components
- */
-export * from "./agents/adapter";
-export * from "./agents/adapter/redux-middleware";
-export * from "./agents/base";
-export * from "./agents/coordinator";
-export * from "./communication/protocol";
-export * from "./memory/shared";
-export * from "./types";
+// Export the AIgents class
+export default AIgents;
+
+// Create and export a singleton instance
+export const aigents = new AIgents();
+
+// Export other key components for direct access
+export { AgentType } from "./agents/core/types";
+export { AgentSystem } from "./core/agentSystem";
+export { SystemFactory } from "./core/systemFactory";
+export { AgentMessage, MessageType } from "./messaging/messageRouter";
+
+// For testing or direct usage
+if (require.main === module) {
+  (async () => {
+    try {
+      await aigents.initialize();
+      const response = await aigents.processMessage(
+        "Hello, I need help with implementing a React component.",
+      );
+      console.log("Response:", response);
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  })();
+}

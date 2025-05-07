@@ -37,8 +37,12 @@ export async function activateMultiAgentSystem() {
     const mcpBridge = new AgentMCPBridge();
     const toolkit = await mcpBridge.createToolkit();
 
-    // Initialize the Master Agent
-    masterAgent = new AIgentsMasterAgent(toolkit);
+    // Initialize the Master Agent (constructor doesn't take parameters)
+    masterAgent = new AIgentsMasterAgent();
+
+    // Register available tools with the master agent
+    // This will be expanded with actual tool registration
+    console.log("Master agent created with available tools");
 
     // In the future, we'll register specialized agents here
     // masterAgent.registerAgent(new DeveloperAgent(toolkit));
@@ -106,7 +110,7 @@ export function updateAIgentsUI(show: boolean) {
   console.log(`${show ? "Showing" : "Hiding"} AIgents UI elements`);
 
   // In the actual implementation, this would:
-  // 1. Add or remove agent selector dropdown
-  // 2. Update the chat view with agent-specific elements
-  // 3. Add visual indicators for which agent is active
+  // 1. Add visual indicators for AIgents mode
+  // 2. Update the chat view with agent-specific styling
+  // 3. Show status indicator for active agents
 }

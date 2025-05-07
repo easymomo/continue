@@ -1,6 +1,9 @@
+_[← Back to Documentation Navigation](../navigation.md)_
+
 # Continue VSCode Extension Architecture Overview
 
 **Navigation:**
+
 - [Index](../index.md)
 - [Table of Contents](../table-of-contents.md)
 - **You are here:** Architecture Overview
@@ -31,6 +34,7 @@ The extension's entry point is in `extensions/vscode/src/extension.ts`, which ac
 ### 2. Core Functionality
 
 The core of the extension is in `core/core.ts`, which orchestrates all the main features:
+
 - Managing configuration
 - Handling communications between components
 - Processing context for AI models
@@ -39,6 +43,7 @@ The core of the extension is in `core/core.ts`, which orchestrates all the main 
 ### 3. IDE Integration
 
 The VSCode-specific implementation (`extensions/vscode/src/extension/VsCodeExtension.ts`) integrates the core functionality with VSCode:
+
 - Registers commands, providers, and UI components
 - Manages the lifecycle of the extension
 - Handles VSCode-specific events and interactions
@@ -46,6 +51,7 @@ The VSCode-specific implementation (`extensions/vscode/src/extension/VsCodeExten
 ### 4. Context Providers
 
 A key part of the architecture is the context providers system in `core/context/providers/`:
+
 - `CodebaseContextProvider.ts`: Retrieves relevant code from the codebase
 - `CurrentFileContextProvider.ts`: Provides context from the current file
 
@@ -56,6 +62,7 @@ The extension interfaces with various LLM models through adapters in `core/llm/l
 ### 6. Model Context Protocol (MCP)
 
 The extension supports the Model Context Protocol (MCP) for standardized interactions with AI models:
+
 - `core/context/mcp/index.ts`: Manages MCP connections
 - `core/commands/slash/mcp.ts`: Implements MCP slash commands
 
@@ -66,7 +73,7 @@ graph TB
     User[User] --> VSCode[VSCode Editor]
     VSCode --> Extension[Extension Entry Point]
     Extension --> VsCodeExtension[VSCode Extension]
-    
+
     subgraph "Core"
         CoreTS[Core.ts]
         CoreTS --> ConfigHandler[Configuration Handler]
@@ -74,33 +81,33 @@ graph TB
         CoreTS --> ContextProviders[Context Providers]
         CoreTS --> IndexingSystem[Indexing System]
         CoreTS --> MCPManager[MCP Manager]
-        
+
         ContextProviders --> CodebaseProvider[Codebase Context Provider]
         ContextProviders --> CurrentFileProvider[Current File Context Provider]
-        
+
         LLMIntegration --> LLMAdapters[LLM Adapters/Models]
-        
+
         MCPManager --> MCPConnections[MCP Connections]
     end
-    
+
     VsCodeExtension --> CoreTS
     VsCodeExtension --> IDE[VSCode IDE Interface]
     VsCodeExtension --> UI[UI Components]
-    
+
     UI --> Sidebar[Sidebar/GUI]
     UI --> CompletionProvider[Completion Provider]
     UI --> EditDecorations[Edit Decorations]
-    
+
     IDE --> VsCodeMessenger[VSCode Messenger]
-    
+
     VsCodeMessenger <--> CoreTS
-    
+
     CodebaseProvider --> Codebase[User's Codebase]
     CurrentFileProvider --> CurrentFile[Current File]
-    
+
     LLMAdapters --> ExternalLLMs[External LLM Services]
     MCPConnections --> ExternalTools[External Tools]
-    
+
     style Core fill:#f9f9f9,stroke:#333,stroke-width:2px
 ```
 
@@ -126,6 +133,7 @@ This architecture is designed to be extensible and modular, making it suitable f
 ---
 
 **Navigation:**
+
 - [Index](../index.md)
 - [Table of Contents](../table-of-contents.md)
 - **You are here:** Architecture Overview
@@ -133,4 +141,4 @@ This architecture is designed to be extensible and modular, making it suitable f
 - [LLM Integration](llm-integration.md)
 - [Agent System](agent-system.md)
 - [IDE Integration](ide-integration.md)
-- [MCP System](mcp-system.md) 
+- [MCP System](mcp-system.md)

@@ -1,3 +1,5 @@
+_[← Back to Documentation Navigation](../navigation.md)_
+
 # Agent System
 
 **Navigation:**

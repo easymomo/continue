@@ -1,161 +1,215 @@
 # Active Context
 
-## Current Focus
+## Current Work Session
 
-- Agent framework evaluation and selection completed
-- Architecture design for multi-agent system using LangChain.js/LangGraph
-- **Implementation planning based on VS Code extension code analysis**
-- **Integration strategy with existing Redux workflow and LLM connections**
-- **Custom "AIgents" mode implementation in the VS Code/Cursor UI**
-- Local LLM integration strategy with LM Studio and Ollama
+**Last Updated:** 2024-05-20  
+**Current Focus:** Testing framework for agent workflows and memory integration
 
-## Focus Areas
+## Project State
 
-- [x] Agent framework evaluation and architecture
-- [x] Local LLM integration strategy via LM Studio and Ollama
-- [ ] Multi-agent system hierarchy and communication design
-- [ ] VS Code extension integration approach
-- [ ] MCP integration leveraging VS Code's native MCP support
-- [ ] Custom "AIgents" mode UI implementation
+### Current Phase
 
-## Project Overview
+- Testing security workflow implementation
+- Integrating memory system with agents
+- Implementing workflow stages for specialized agents
+- Enhancing testing capabilities with reusable components
 
-This project aims to transform a single-agent VS Code extension into a comprehensive multi-agent system with specialized roles and capabilities. The system will utilize a hierarchical structure with a Master Agent coordinating specialized worker agents. Key components include:
+### Recent Activity
 
-1. **Multi-Agent Architecture**: A hierarchical system with a Master Agent and specialized worker agents.
-2. **Local-First LLM Integration**: Prioritizing local LLM usage through existing extension integrations with LM Studio and Ollama, with support for cloud-based models when needed.
-3. **Vector Database**: Implementing a vector database for efficient storage and retrieval of documentation and search results.
-4. **Instruction Management System**: Creating a flexible system for managing agent instructions without code modifications.
-5. **MCP Integration**: Leveraging VS Code's built-in MCP support to utilize registered MCP servers without creating redundant connections.
-6. **Custom UI Mode**: Adding a new "AIgents" mode option to the existing UI dropdown, preserving all current functionality.
+- Created comprehensive workflow testing framework:
+  - Implemented BaseMockTaskAdapter template for reusable test components
+  - Developed detailed workflow testing guidelines
+  - Created example security workflow test implementation
+  - Added documentation for common testing patterns and pitfalls
+- Successfully tested the complete security workflow lifecycle including:
+  - Task creation in ASSESSMENT stage
+  - Adding security requirements and artifacts
+  - Transitioning through workflow stages (ASSESSMENT → ANALYSIS → REMEDIATION → COMPLETED)
+  - Tracking vulnerabilities, affected files and components
+  - Stage transition validation with configurable rules
+- Fixed issues with TypeScript enum compatibility by using object literals instead
+- Updated documentation with agent architecture details and testing best practices
+- Added comprehensive agent-task system architecture documentation
+- Tracked progress in tasks.md and progress.md
 
-## Selected Technical Approach
+### Next Priorities
 
-- **Agent Framework**: LangChain.js with LangGraph for orchestrating multi-agent workflows
-- **Agent Model**: CrewAI-inspired role-based model with hierarchical structure
-- **LLM Integration**: Adapter for both local (LM Studio, Ollama) and cloud LLMs
-- **Vector Database**: Local ChromaDB with project isolation and offline operation
-- **Instruction Management**: YAML/JSON configuration files with hot-reload capabilities
-- **MCP Implementation**: Using VS Code's MCP API to discover and utilize registered MCP servers
-- **UI Integration**: Adding "AIgents" as a new mode option alongside existing Agent, Chat, and Edit modes
+- Complete integration of security workflow with agent coordination
+- Fix linter errors in DeveloperTaskManager and related files
+- Address TypeScript configuration issues with memory imports
+- Implement comprehensive Vitest testing for task transitions
+- Create end-to-end test for agent coordination with security findings
 
-## Custom AIgents Mode Implementation
+## Technical Notes
 
-The extension will add a new "AIgents" mode to the mode selector dropdown, alongside the existing Agent, Chat, and Edit modes. This approach has several advantages:
+### LLM Adapter Layer
 
-1. **Preserves Existing Functionality**: All current modes remain completely untouched
-2. **Clear User Experience**: Users can easily switch between standard operation and our enhanced multi-agent system
-3. **Simplified Development**: Avoids the complexity of modifying existing code paths
-4. **LLM Compatibility**: Works with the selected LLM from the existing model dropdown
+- The LLM adapter layer is now robust with addressed type issues
+- ContinueLLMAdapter correctly handles model selection and defaults
+- The LLM factory pattern allows for extension with different providers
 
-The implementation will include:
+### Agent Framework
 
-- Adding the AIgents option to the mode selector dropdown
-- Creating custom UI indicators for the AIgents mode
-- Implementing specialized controls for interacting with multiple agents
-- Routing messages through our multi-agent system when in AIgents mode
+- BaseAgent provides core functionality for all agents
+- TaskSystemAdapter provides memory capabilities to agents without modifying BaseAgent
+- Memory integration allows agents to persist state and context
+- Agent implementations follow consistent patterns:
+  - ResearchAgent - handles research tasks with progressive workflow stages
+  - DeveloperAgent - manages code implementation with development workflow
+  - SecurityAgent - performs security analysis with security audit workflow stages
 
-## Code Analysis Findings
+### Testing Framework
 
-- **Redux State Flow**:
-  - `streamResponseThunk`: Entry point for user messages
-  - `streamNormalInput`: Handles sending messages to LLM
-  - `callTool`: Manages tool execution requests
-- **LLM Integration**:
-  - `ideMessenger.llmStreamChat`: Main LLM communication method
-  - Model-specific classes in `core/llm/llms/` directory
-  - Model selection UI with support for different providers
-- **Existing Agent Implementation**:
-  - Current implementation uses a single agent architecture
-  - Agent mode is toggled via `selectUseTools` selector
-  - Tools are included in LLM requests when in agent mode
-  - Tool execution follows policy-based permission system
+- Created a comprehensive workflow testing framework:
+  - BaseMockTaskAdapter - reusable generic class for workflow testing
+  - Workflow testing guidelines - detailed documentation on testing approaches
+  - Example implementation - security workflow test example
+  - Common patterns - documented solutions for TypeScript enum issues and validation approaches
+- Key testing capabilities:
+  - In-memory task storage for fast test execution
+  - Transition logging for debugging and verification
+  - Comprehensive validation of workflow rules
+  - Support for full workflow lifecycle testing
+  - Structured approaches for handling TypeScript type safety
 
-## Enhanced Agent Types
+### Security Agent Workflow
 
-- **Core Agents**:
-  - Master Agent (Coordinator)
-  - Developer Agent (Coding specialist)
-  - Research Agent (Documentation and search specialist)
-  - Testing Agent (Code testing and validation)
-- **Additional Specialized Agents**:
-  - Evaluation Agent (Assesses quality of solutions)
-  - Learning Agent (Captures and applies learning from interactions)
-  - Integration Agent (Manages external system integrations)
+- Implemented and tested a structured workflow with defined stages:
+  - ASSESSMENT: Initial security requirement gathering
+  - ANALYSIS: Detailed security analysis of code/systems
+  - VULNERABILITY_SCAN: Active scanning for security issues
+  - REMEDIATION: Recommending fixes for identified issues
+  - VERIFICATION: Verifying implemented security fixes
+  - COMPLETED: Security assessment completion
+- Created security-specific artifact types:
+  - SCAN_REPORT: Results from automated security scans
+  - VULNERABILITY_REPORT: Detailed vulnerability assessments
+  - REMEDIATION_PLAN: Plan for addressing security issues
+  - VERIFICATION_REPORT: Results from verification testing
+  - SECURITY_ASSESSMENT: Overall security posture assessment
+- Successfully tested helper functions for security operations:
+  - Severity detection (low, medium, high, critical)
+  - Affected files identification
+  - Security requirement parsing
+  - Workflow stage transitions
+  - Vulnerability tracking
 
-## Context System Strategy
+### Memory System
 
-The context system provides semantic search capabilities for our agent memory:
+- Agents use composition with TaskSystemAdapter rather than inheritance
+- Memory operations include:
+  - Storing messages, decisions, and documents
+  - Creating and managing contexts
+  - Task management for different agent types
+  - Transaction support for persistence
+- Security-specific memory enhancements:
+  - Vulnerability storage with severity metadata
+  - Affected files and vulnerable components tracking
+  - Security requirements management
 
-1. **Offline-First Architecture**:
+### Current Issues
 
-   - All vector database and embedding operations run completely locally
-   - No external API dependencies for core functionality
-   - Compatible with airgapped environments
+- TypeScript configuration needs adjustment for memory imports (file paths not under rootDir)
+- Linter errors in DeveloperTaskManager and related files
+- Some compatibility issues with TypeScript enums in standalone tests (worked around by using object literals)
 
-2. **Project Isolation**:
+## Coordination Architecture
 
-   - Per-project collections in vector database
-   - Workspace-aware storage paths
-   - Isolated memory manager instances by project
-   - Resource management to prevent conflicts
+- Coordinator dispatches tasks to specialized agents
+- Workflow transitions between agents based on context
+- Message routing determines appropriate agent for each request
+- SecurityAgent can return to coordinator with specific reasoning about needed development assistance
 
-3. **Local Vector Storage**:
+## Project Information
 
-   - ChromaDB running locally (either as direct dependency or Docker container)
-   - Alternative options include SQLite-based solutions and file-based databases
-   - Clear separation between projects to prevent data leakage
+- **Project Name**: AI Dev Agents
+- **Last Updated**: 2024-05-20
+- **Current Phase**: Implementation and Testing
+- **Focus Area**: Workflow Testing Framework and Task Management Integration
+- **Task Complexity**: Level 3 - Feature Implementation
 
-4. **Local Embedding Models**:
+## Current Technical Focus
 
-   - Integration with Ollama for embedding generation
-   - Support for LM Studio's embedding capabilities
-   - Lightweight embedding options for resource-constrained environments
+We've successfully implemented and tested security workflow stages and task management with the following components:
 
-5. **Deployment Options**:
-   - Direct npm dependency installation
-   - Docker-based setup for better isolation
-   - Portable configuration for multi-machine use
+1. **SecurityWorkflowStage**: Defines stages in the security assessment process
+2. **SecurityArtifactType**: Types of security findings and artifacts
+3. **SecurityTaskManager**: Manages security task lifecycle and transitions
+4. **Security helper functions**: Support utilities for security operations
+5. **Standalone test framework**: Validates the security workflow implementation
 
-## MCP Integration Strategy
+We've also created a comprehensive testing framework:
 
-The implementation will leverage VS Code's native MCP support to:
+1. **BaseMockTaskAdapter**: Generic adapter template for workflow testing
+2. **Workflow Testing Guide**: Documentation on testing best practices
+3. **Security Workflow Test Example**: Complete example of workflow testing
+4. **Agent Architecture Documentation**: Details of our layered agent system design
 
-- Discover MCP servers registered in VS Code
-- Access tools and resources provided by these servers
-- Implement proper security and permission controls
-- Use VS Code's existing configuration and authentication systems
+Our testing confirms the security workflow enables:
 
-This approach eliminates the need to create separate connections or manage transport protocols manually, providing a more seamless experience for users who already have MCP servers configured in VS Code.
+- Structured security assessment with clear stage progression
+- Detailed tracking of security findings with severity classification
+- Systematic vulnerability management through defined workflow stages
+- Coordinated handoffs to development teams for remediation
+- Verification and validation of security fixes
 
-## Recent Activity
+## Current Architecture
 
-- Completed research on agent frameworks and identified LangChain.js with LangGraph as the optimal choice
-- Analyzed existing VS Code extension to identify integration points
-- Identified existing LLM integrations with LM Studio and Ollama in the forked extension
-- Designed initial agent hierarchy and communication patterns
-- Updated implementation plan to leverage VS Code's native MCP support
-- Completed code analysis of VS Code extension
-- Mapped integration points for agent system
-- Designed custom "AIgents" mode approach for UI integration
-- **Developed offline-first context system architecture**
-- **Created project isolation strategy for multi-project support**
-- **Refined vector database approach to prioritize local operation**
-- **Designed Ollama integration for local embedding generation**
-- **Updated Memory and Context System implementation plan**
-- **Verified proper separation between AIgents and Continue in memory system design**
-- **Documented adapter pattern for Continue context system integration**
+```
+src/
+  agents/
+    core/             # Base types and interfaces
+    framework/        # Framework components (memory integration, task adapter)
+    coordinator/      # Coordinator agent implementation
+    worker/
+      researchAgent.ts     # Enhanced with task management
+      research/            # Research-specific components
+      developerAgent.ts    # Developer agent implementation
+      developer/           # Development-specific components
+      securityAgent.ts     # Security agent implementation
+      security/            # Security-specific components
+        securityWorkflowStages.ts  # Security workflow stages and artifacts
+        securityTaskManager.ts     # Security task lifecycle management
+        securityHelpers.ts         # Security helper functions
+  memory/             # Memory subsystem
+    tasks/            # Task management system
+  tools/              # Tool system implementation
+docs/
+  agent-architecture.md    # Architecture documentation
+  testing/                 # Testing documentation
+    workflow-testing-guide.md  # Workflow testing guide
+    workflow/              # Testing utilities
+      mock-adapter-template.ts  # Reusable mock adapter
+tests/
+  workflow/               # Workflow tests
+    security-workflow-test-example.ts  # Security workflow test example
+```
 
 ## Next Steps
 
-1. Set up development environment with LangChain.js and necessary dependencies
-2. Create the UI components for the new "AIgents" mode
-3. Implement the mode registration and selection handling
-4. Investigate VS Code's MCP API to understand how to utilize registered MCP servers
-5. Design the agent-MCP bridge for seamless tool access
-6. Create proof of concept for basic agent communication
-7. Implement Master Agent prototype
-8. **Implement Continue context system adapter for embedding generation**
-9. **Complete memory manager implementation with vector search capabilities**
-10. **Develop agent memory contexts for specialized agents**
-11. **Create memory persistence layer for cross-session memory**
+1. Implement integration testing between security and developer agents
+2. Fix remaining linter errors in developer components
+3. Create visualization tools for security findings
+4. Implement security reporting capabilities
+5. Enhance coordination between security and developer agents
+6. Document security workflow usage patterns
+7. Integrate with Vitest testing framework
+
+## Documentation Status
+
+- Basic documentation in place for agent architecture and workflows
+- Enhanced testing documentation now available
+- Need to expand documentation on memory subsystem and tool system integration
+
+## Environment
+
+- Node.js / TypeScript project
+- VS Code Extension Target
+- Open-source LLM support
+- Mock adapter framework for testing
+
+## Related Resources
+
+- Architecture diagrams in docs/architecture
+- Agent framework documentation in docs/agents
+- VS Code extension API documentation

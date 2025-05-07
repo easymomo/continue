@@ -5,6 +5,7 @@ import {
   ChevronDownIcon,
   PencilIcon,
   SparklesIcon,
+  UserGroupIcon,
 } from "@heroicons/react/24/outline";
 import { MessageModes } from "core";
 import { modelSupportsTools } from "core/llm/autodetect";
@@ -58,6 +59,8 @@ function ModeSelect() {
         return <ChatBubbleLeftIcon className="xs:h-3 xs:w-3 h-3 w-3" />;
       case "edit":
         return <PencilIcon className="xs:h-3 xs:w-3 h-3 w-3" />;
+      case "aigents":
+        return <UserGroupIcon className="xs:h-3 xs:w-3 h-3 w-3" />;
     }
   };
 
@@ -90,7 +93,20 @@ function ModeSelect() {
         if (newMode === mode) {
           return;
         }
+
         dispatch(setMode(newMode));
+
+        // Handle AIgents mode activation/deactivation via VSCode command
+        if (newMode === "aigents" || mode === "aigents") {
+          // Send command to VS Code extension to handle mode change
+          if (window.ideMessenger?.runVSCodeCommand) {
+            window.ideMessenger.runVSCodeCommand(
+              "aiDevAgents.handleModeChange",
+              newMode,
+            );
+          }
+        }
+
         if (newMode === "edit") {
           await dispatch(
             saveCurrentSession({
@@ -155,6 +171,14 @@ function ModeSelect() {
               {mode === "edit" && <CheckIcon className="ml-auto h-3 w-3" />}
             </ListboxOption>
           )}
+
+          <ListboxOption value="aigents">
+            <div className="flex flex-row items-center gap-1.5">
+              <UserGroupIcon className="h-3 w-3" />
+              <span className="">AIgents</span>
+            </div>
+            {mode === "aigents" && <CheckIcon className="ml-auto h-3 w-3" />}
+          </ListboxOption>
 
           <div className="text-lightgray px-2 py-1">
             {metaKeyLabel}. for next mode
